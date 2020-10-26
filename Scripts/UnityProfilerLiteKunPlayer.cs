@@ -347,9 +347,12 @@ namespace Utj.UnityProfilerLiteKun
             }
             FrameTimingManager.CaptureFrameTimings();
             mFrameTimingNum = FrameTimingManager.GetLatestTimings(2, mFrameTimings);
-            if (mFrameTimingNum < 1)
+            if (mFrameTimingNum > 1)
             {
-                //return;
+                cpuFrameTime = mFrameTimings[0].cpuFrameTime;
+                gpuFrameTime = mFrameTimings[0].gpuFrameTime;
+                widthScaleFactor = mFrameTimings[0].widthScale;
+                heightScaleFactor = mFrameTimings[0].heightScale;
             }
 
             // [指数関数で近似する](https://techblog.kayac.com/approximate-average-fps)
@@ -359,9 +362,6 @@ namespace Utj.UnityProfilerLiteKun
             mAvgTime += deltaTime * K;
             mPrevRealTime = currentTime;
 
-            cpuFrameTime = mFrameTimings[0].cpuFrameTime;
-            gpuFrameTime = mFrameTimings[0].gpuFrameTime;
-
             playerLoopTime = GetRecordersTime(mPlayerLoopRecorders);
 
             renderingTime = GetRecordersTime(mRenderingRecorders);
@@ -369,8 +369,7 @@ namespace Utj.UnityProfilerLiteKun
             physicsTime = GetRecordersTime(mPhysicsSamplerRecorders);
             animationTime = GetRecordersTime(mAnimationSamplerRecorders);
 
-            widthScaleFactor = mFrameTimings[0].widthScale;
-            heightScaleFactor = mFrameTimings[0].heightScale;
+            
             widthResolution = Screen.currentResolution.width;
             heightResolution = Screen.currentResolution.height;
             
