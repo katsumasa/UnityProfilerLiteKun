@@ -48,6 +48,7 @@ namespace Utj.UnityProfilerLiteKun
         public float mHeightScaleFactor;
         public int mWidthResolution;
         public int mHeightResolution;
+        public int mRefreshRate;
 
         public long mUsedHeapSize;
         public long mMonoHeapSize;

@@ -96,6 +96,12 @@ namespace Utj.UnityProfilerLiteKun
             set { mProfileData.mHeightResolution = value; }
         }
 
+        int refreshRate
+        {
+            get { return mProfileData.mRefreshRate; }
+            set { mProfileData.mRefreshRate = value; }
+        }
+
         long usedHeapSize
         {
             get { return mProfileData.mUsedHeapSize; }
@@ -265,12 +271,12 @@ namespace Utj.UnityProfilerLiteKun
 
         private void OnMessageEvent(MessageEventArgs args)
         {
-            Debug.Log("OnMessageEvent ");
+            //UnityChoseKun.Log("OnMessageEvent ");
 
             var json = System.Text.Encoding.ASCII.GetString(args.data);
             var message = JsonUtility.FromJson<MessageData>(json);
 
-            Debug.Log(message.mMessageID);
+            //UnityChoseKun.Log(message.mMessageID);
             switch (message.mMessageID)
             {
                 case MessageData.MessageID.STATS_OFF:
@@ -372,6 +378,7 @@ namespace Utj.UnityProfilerLiteKun
             
             widthResolution = Screen.currentResolution.width;
             heightResolution = Screen.currentResolution.height;
+            refreshRate = Screen.currentResolution.refreshRate;
             
             usedHeapSize = UnityEngine.Profiling.Profiler.usedHeapSizeLong;
             monoHeapSize = UnityEngine.Profiling.Profiler.GetMonoHeapSizeLong();
@@ -406,7 +413,8 @@ namespace Utj.UnityProfilerLiteKun
             GUI.Label(new Rect(200, 40,180, 20), Format("{0,3:F1} FPS ({1,3:F1}ms)\n", 1.0f / mAvgTime, mAvgTime * 1000.0f), mTextStyle);
             GUI.Label(new Rect( 16, 60,190, 20), Format("CPU Time: {0,3:F1}[ms]\n", cpuFrameTime),mTextStyle);
             GUI.Label(new Rect(200, 60,190, 20), Format("GPU Time: {0,3:F1}[ms]\n", gpuFrameTime),mTextStyle);
-            GUI.Label(new Rect( 16, 80,390, 20), Format("Screen: {0} x {1} ({2} x {3})", widthScaleFactor*widthResolution, heightResolution*heightScaleFactor, widthResolution, heightResolution),mTextStyle);
+            GUI.Label(new Rect( 16, 80,390, 20), Format("Screen: {0} x {1} ({2} x {3}) - {4} [Hz]", widthScaleFactor*widthResolution, heightResolution*heightScaleFactor, widthResolution, heightResolution, refreshRate),mTextStyle);
+           
 
             GUI.Label(new Rect(  8,130,390, 20), "CPU Usage:", mLabelStyle);
             GUI.Label(new Rect( 16,150,180, 20), Format("Rendering: {0,3:F2}ms\n", renderingTime / 1000000.0f),mTextStyle);
