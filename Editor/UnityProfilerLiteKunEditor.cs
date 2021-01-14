@@ -16,7 +16,10 @@ using UnityEditor.SceneManagement;
 using System.Runtime.Remoting.Messaging;
 using System.Linq;
 
-#if UNITY_2018_1_OR_NEWER
+#if UNITY_2020_1_OR_NEWER
+using ConnectionUtility = UnityEditor.Networking.PlayerConnection.PlayerConnectionGUIUtility;
+using ConnectionGUILayout = UnityEditor.Networking.PlayerConnection.PlayerConnectionGUILayout;
+#elif UNITY_2018_1_OR_NEWER
 using UnityEngine.Experimental.Networking.PlayerConnection;
 using ConnectionUtility = UnityEditor.Experimental.Networking.PlayerConnection.EditorGUIUtility;
 using ConnectionGUILayout = UnityEditor.Experimental.Networking.PlayerConnection.EditorGUILayout;
@@ -110,7 +113,11 @@ namespace Utj.UnityProfilerLiteKun
             EditorGUILayout.LabelField(content,GUILayout.MaxWidth(contentSize.x));
             if (attachProfilerState != null)
             {
+#if UNITY_2020_1_OR_NEWER
+                ConnectionGUILayout.ConnectionTargetSelectionDropdown(attachProfilerState, EditorStyles.toolbarDropDown);
+#else
                 ConnectionGUILayout.AttachToPlayerDropdown(attachProfilerState, EditorStyles.toolbarDropDown);
+#endif
             }
             EditorGUI.BeginChangeCheck();
             contentSize = EditorStyles.label.CalcSize(Styles.RecOnContent);
@@ -382,7 +389,11 @@ namespace Utj.UnityProfilerLiteKun
         {
             if (attachProfilerState == null)
             {
+#if UNITY_2020_1_OR_NEWER
+                attachProfilerState = ConnectionUtility.GetConnectionState(this);
+#else
                 attachProfilerState = ConnectionUtility.GetAttachToPlayerState(this);
+#endif
             }
             UnityEditor.Networking.PlayerConnection.EditorConnection.instance.Initialize();
             UnityEditor.Networking.PlayerConnection.EditorConnection.instance.Register(UnityProfilerLiteKun.kMsgSendPlayerToEditor, OnMessageEvent);
