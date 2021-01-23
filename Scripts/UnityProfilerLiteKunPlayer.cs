@@ -8,7 +8,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking.PlayerConnection;
-
+using Unity.Profiling;
 
 namespace Utj.UnityProfilerLiteKun
 {
@@ -175,6 +175,9 @@ namespace Utj.UnityProfilerLiteKun
             }
         }
 
+
+
+
         string[] mPlayerLoopSamplerNames =
         {
             "PlayerLoop",
@@ -216,7 +219,27 @@ namespace Utj.UnityProfilerLiteKun
         UnityEngine.Profiling.Recorder[] mPhysicsSamplerRecorders;
         UnityEngine.Profiling.Recorder[] mAnimationSamplerRecorders;
 
-        
+
+
+# if UNITY_2020_2_OR_NEWER
+        ProfilerRecorder mSystemMemoryRecorder;
+        ProfilerRecorder mGcMemoryRecorder;
+        ProfilerRecorder mDrawCallsCountRecorder;
+        ProfilerRecorder mBatchesCountRecorder;
+        ProfilerRecorder mDynamicBathcedDrawCallsCountRecorder;
+        ProfilerRecorder mDynamicBatchesCountRecorder;
+        ProfilerRecorder mStaticBatchedDrawCallsCountRecorder;
+        ProfilerRecorder mStaticBatchesCountRecorder;
+        ProfilerRecorder mInstancedBatchedDrawCallsCountRecorder;
+        ProfilerRecorder mInstancedBatchesCountRecorder;
+        ProfilerRecorder mTrianglesCountRecorder;
+        ProfilerRecorder mVerticesCountRecorder;
+        ProfilerRecorder mSetPassCallsCountRecorder;
+        ProfilerRecorder mShadowCastersCountRecorder;
+        ProfilerRecorder mVisibleSkinnedMeshesCountRecorder;
+        ProfilerRecorder mAudioClipCountRecorder;
+#endif
+
 
         GUIStyle mLabelStyle;
         GUIStyle mTextStyle;
@@ -255,28 +278,80 @@ namespace Utj.UnityProfilerLiteKun
             mTextStyle.fontSize = 16;
             mTextStyle.fontStyle = FontStyle.Normal;
             mTextStyle.normal.textColor = Color.white;
+
         }
 
 
         private void OnEnable()
         {
             PlayerConnection.instance.Register(UnityProfilerLiteKun.kMsgSendEditorToPlayer, OnMessageEvent);
+#if UNITY_2020_2_OR_NEWER
+            mSystemMemoryRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "System Used Memory");
+            mGcMemoryRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Reserved Memory");
+
+            mAudioClipCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "AudioClip Count");
+
+            mDynamicBathcedDrawCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Dynamic Batched Draw Calls Count");
+            mDynamicBatchesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Dynamic Batches Count");
+
+            mStaticBatchedDrawCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Static Batched Draw Calls Count");
+            mStaticBatchesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Static Batches Count");
+
+            mInstancedBatchedDrawCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Instanced Batched Draw Calls Count");
+            mInstancedBatchesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Instanced Batches Count");
+
+            mDrawCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Draw Calls Count");
+            mBatchesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Batches Count");
+            
+            mTrianglesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Triangles Count");
+            mVerticesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render,"Vertices Count");
+
+            mSetPassCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "SetPass Calls Count");
+            mShadowCastersCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Shadow Casters Count");
+            mVisibleSkinnedMeshesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Visible Skinned Meshes Count");
+#endif
         }
+
 
         private void OnDisable()
         {
+#if UNITY_2020_2_OR_NEWER
+            mSystemMemoryRecorder.Dispose();
+            mGcMemoryRecorder.Dispose();
+            mAudioClipCountRecorder.Dispose();
+
+            mDrawCallsCountRecorder.Dispose();
+            mBatchesCountRecorder.Dispose();
+
+            mDynamicBathcedDrawCallsCountRecorder.Dispose();
+            mDynamicBatchesCountRecorder.Dispose();
+
+            mStaticBatchedDrawCallsCountRecorder.Dispose();
+            mStaticBatchesCountRecorder.Dispose();
+
+            mInstancedBatchedDrawCallsCountRecorder.Dispose();
+            mInstancedBatchesCountRecorder.Dispose();
+
+            mTrianglesCountRecorder.Dispose();
+            mVerticesCountRecorder.Dispose();
+
+            mSetPassCallsCountRecorder.Dispose();
+            mShadowCastersCountRecorder.Dispose();
+            mVisibleSkinnedMeshesCountRecorder.Dispose();
+#endif
+
             PlayerConnection.instance.Unregister(UnityProfilerLiteKun.kMsgSendEditorToPlayer, OnMessageEvent);
         }
 
 
         private void OnMessageEvent(MessageEventArgs args)
         {
-            //UnityChoseKun.Log("OnMessageEvent ");
+            //Debug.Log("OnMessageEvent ");
 
             var json = System.Text.Encoding.ASCII.GetString(args.data);
             var message = JsonUtility.FromJson<MessageData>(json);
 
-            //UnityChoseKun.Log(message.mMessageID);
+            //Debug.Log(message.mMessageID);
             switch (message.mMessageID)
             {
                 case MessageData.MessageID.STATS_OFF:
@@ -313,8 +388,11 @@ namespace Utj.UnityProfilerLiteKun
                 bf.Serialize(ms, mProfileData);
                 //var json = JsonUtility.ToJson(mProfileData);
                 //var bytes = System.Text.Encoding.ASCII.GetBytes(json);
-                PlayerConnection.instance.Send(UnityProfilerLiteKun.kMsgSendPlayerToEditor, ms.ToArray());
+                var array = ms.ToArray();
+                PlayerConnection.instance.Send(UnityProfilerLiteKun.kMsgSendPlayerToEditor, array);
             }
+            
+
             finally
             {
                 ms.Close();
@@ -403,10 +481,43 @@ namespace Utj.UnityProfilerLiteKun
                 return;
             }
 
-            float w = 400, h = 324;
+            float w = 350, h = 204;
 
             GUILayout.BeginArea(new Rect(Screen.safeArea.width - w - 30, 27, w, h), "Statistics", GUI.skin.window);
-#if true
+
+
+#if UNITY_2020_2_OR_NEWER
+            var batchesSavedByDynamicBatching = mDynamicBathcedDrawCallsCountRecorder.LastValue - mDynamicBatchesCountRecorder.LastValue;
+            var batchesSavedByStaticBatching = mStaticBatchedDrawCallsCountRecorder.LastValue - mStaticBatchesCountRecorder.LastValue;
+            var batchesSavedByInstancing = mInstancedBatchedDrawCallsCountRecorder.LastValue - mInstancedBatchesCountRecorder.LastValue;
+
+            StringBuilder gfxStats = new StringBuilder(400);
+            gfxStats.Append(Format("Frame:{0,7}\n\n", Time.frameCount));
+            gfxStats.Append(Format("Graphics:\t {0,3:F1} FPS ({1,3:F1}ms)\n", 1.0f / mAvgTime, mAvgTime * 1000.0f));
+
+            if (cpuFrameTime > gpuFrameTime)
+                gfxStats.Append(Format("  CPU: main <b>{0:F1}</b>ms  render thread {1:F1}ms\n", cpuFrameTime, gpuFrameTime));
+            else
+                gfxStats.Append(Format("  CPU: main {0:F1}ms  render thread <b>{1:F1}</b>ms\n", cpuFrameTime, gpuFrameTime));
+
+            gfxStats.Append(Format("  Batches: <b>{0}</b> \tSaved by batching: {1}\n", mBatchesCountRecorder.LastValue, batchesSavedByDynamicBatching + batchesSavedByStaticBatching + batchesSavedByInstancing));
+            gfxStats.Append(Format("  Tris: {0} \tVerts: {1} \n", FormatNumber(mTrianglesCountRecorder.LastValue), FormatNumber(mVerticesCountRecorder.LastValue)));
+            gfxStats.Append(Format("  Screen: {0} x {1} ({2} x {3}) - {4} [Hz]\n", widthScaleFactor * widthResolution, heightResolution * heightScaleFactor, widthResolution, heightResolution, refreshRate));
+            gfxStats.Append(Format("  SetPass calls: {0} \tShadow casters: {1} \n", mSetPassCallsCountRecorder.LastValue, mShadowCastersCountRecorder.LastValue));
+            gfxStats.Append(Format("  Visible skinned meshes: {0}\n", mVisibleSkinnedMeshesCountRecorder.LastValue));
+
+            //gfxStats.Append(Format("mDynamicBathcedDrawCallsCountRecorder {0}\n", mDynamicBathcedDrawCallsCountRecorder.LastValue));
+            //gfxStats.Append(Format("mDynamicBatchesCountRecorder {0}\n", mDynamicBatchesCountRecorder.LastValue));
+            //gfxStats.Append(Format("mStaticBatchedDrawCallsCountRecorder {0}\n", mStaticBatchedDrawCallsCountRecorder.LastValue));
+            //gfxStats.Append(Format("mStaticBatchesCountRecorder {0}\n", mStaticBatchesCountRecorder.LastValue));
+            //gfxStats.Append(Format("mInstancedBatchedDrawCallsCountRecorder {0}\n", mInstancedBatchedDrawCallsCountRecorder.LastValue));
+            //gfxStats.Append(Format("mInstancedBatchesCountRecorder {0}\n", mInstancedBatchesCountRecorder.LastValue));
+
+            GUILayout.Label(gfxStats.ToString(), mLabelStyle);          
+            GUILayout.EndArea();
+#else
+
+
             GUI.Label(new Rect(  8, 20, 390, 20), Format("Frame:{0,7}\n", Time.frameCount),mLabelStyle);
                         
             GUI.Label(new Rect(  8, 40,180, 20),"Graphics:",mLabelStyle);
@@ -440,20 +551,11 @@ namespace Utj.UnityProfilerLiteKun
             sb.Append(FormatBytes(monoHeapSize));
 
             GUI.Label(new Rect( 16,240,390, 40),sb.ToString(), mTextStyle);
-# else
-
-            GUILayout.Label("maxUsedMemory:"+ FormatBytes(UnityEngine.Profiling.Profiler.maxUsedMemory));
-            GUILayout.Label("usedHeapSizeLong:" + FormatBytes(UnityEngine.Profiling.Profiler.usedHeapSizeLong));
-            GUILayout.Label("GetAllocatedMemoryForGraphicsDriver:" + FormatBytes(UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver()));
-            GUILayout.Label("GetMonoHeapSizeLong:" + FormatBytes(UnityEngine.Profiling.Profiler.GetMonoHeapSizeLong()));
-            GUILayout.Label("GetMonoUsedSizeLong:" + FormatBytes(UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong()));
-            GUILayout.Label("GetTempAllocatorSize:" + FormatBytes(UnityEngine.Profiling.Profiler.GetTempAllocatorSize()));
-            GUILayout.Label("GetTotalAllocatedMemoryLong:" + FormatBytes(UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong()));
-            GUILayout.Label("GetTotalReservedMemoryLong:" + FormatBytes(UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong()));
-            GUILayout.Label("GetTotalUnusedReservedMemoryLong:" + FormatBytes(UnityEngine.Profiling.Profiler.GetTotalUnusedReservedMemoryLong()));
+            
+            GUILayout.EndArea();
 #endif
 
-            GUILayout.EndArea();
+
         }
 
         public static string Format(string fmt, params object[] args)

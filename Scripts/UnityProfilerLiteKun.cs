@@ -30,35 +30,28 @@ namespace Utj.UnityProfilerLiteKun
     [Serializable]
     public class ProfileData
     {
-        public long mFrameCount;
-
-        public float mDeltaTime;
-
-        public long mPlayerLoopTime;
-
-        public long mRenderingTime;
-        public long mScriptTime;
-        public long mPhysicsTime;
-        public long mAnimationTime;
-
-        public double mCpuFrameTime;
-        public double mGpuFrameTime;
-
-        public float mWidthScaleFactor;
-        public float mHeightScaleFactor;
-        public int mWidthResolution;
-        public int mHeightResolution;
-        public int mRefreshRate;
-
-        public long mUsedHeapSize;
-        public long mMonoHeapSize;
-        public long mMonoUsedSize;
-        public long mTempAllocatorSize;
-        public long mTotalAllocatedMemorySize;
-        public long mTotalReservedMemorySize;
-        public long mTotalUnusedReservedMemorySize;
-
-        public long mGfxDriverAllocatedMemory;
+        [SerializeField] public long mFrameCount;
+        [SerializeField] public float mDeltaTime;
+        [SerializeField] public long mPlayerLoopTime;
+        [SerializeField] public long mRenderingTime;
+        [SerializeField] public long mScriptTime;
+        [SerializeField] public long mPhysicsTime;
+        [SerializeField] public long mAnimationTime;
+        [SerializeField] public double mCpuFrameTime;
+        [SerializeField] public double mGpuFrameTime;
+        [SerializeField] public float mWidthScaleFactor;
+        [SerializeField] public float mHeightScaleFactor;
+        [SerializeField] public int mWidthResolution;
+        [SerializeField] public int mHeightResolution;
+        [SerializeField] public int mRefreshRate;
+        [SerializeField] public long mUsedHeapSize;
+        [SerializeField] public long mMonoHeapSize;
+        [SerializeField] public long mMonoUsedSize;
+        [SerializeField] public long mTempAllocatorSize;
+        [SerializeField] public long mTotalAllocatedMemorySize;
+        [SerializeField] public long mTotalReservedMemorySize;
+        [SerializeField] public long mTotalUnusedReservedMemorySize;
+        [SerializeField] public long mGfxDriverAllocatedMemory;
 
 
         
@@ -79,6 +72,7 @@ namespace Utj.UnityProfilerLiteKun
         {
             return (float)mScriptTime / 1000f / 1000f;
         }
+
 
         public static string GetCSVHeader()
         {
