@@ -213,15 +213,21 @@ namespace Utj.UnityProfilerLiteKun
             "PreLateUpdate.DirectorUpdateAnimationEnd",
         };
 
+
+
         UnityEngine.Profiling.Recorder[] mPlayerLoopRecorders;
         UnityEngine.Profiling.Recorder[] mRenderingRecorders;
         UnityEngine.Profiling.Recorder[] mScriptsSamplerRecorders;
         UnityEngine.Profiling.Recorder[] mPhysicsSamplerRecorders;
         UnityEngine.Profiling.Recorder[] mAnimationSamplerRecorders;
 
+        UnityEngine.Profiling.Recorder mAnimationUpdate;
+        UnityEngine.Profiling.Recorder mAnimatorsUpdate;
 
+        int mAnimatonCount = 0;
+        int mAnimatorsCount = 0;
 
-# if UNITY_2020_2_OR_NEWER
+#if UNITY_2020_2_OR_NEWER
         ProfilerRecorder mSystemMemoryRecorder;
         ProfilerRecorder mGcMemoryRecorder;
         ProfilerRecorder mDrawCallsCountRecorder;
@@ -268,6 +274,8 @@ namespace Utj.UnityProfilerLiteKun
             RecorerdInit(in mPhysicsSamplerNames, out mPhysicsSamplerRecorders);
             RecorerdInit(in mAnimationSamplerNames, out mAnimationSamplerRecorders);
 
+            mAnimationUpdate = UnityEngine.Profiling.Recorder.Get("Animation.Update");
+            mAnimatorsUpdate = UnityEngine.Profiling.Recorder.Get("Animators.Update");
 
             mLabelStyle = new GUIStyle();
             mLabelStyle.fontSize = 16;
@@ -309,6 +317,8 @@ namespace Utj.UnityProfilerLiteKun
             mSetPassCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "SetPass Calls Count");
             mShadowCastersCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Shadow Casters Count");
             mVisibleSkinnedMeshesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Visible Skinned Meshes Count");
+
+            
 #endif
         }
 
@@ -454,6 +464,18 @@ namespace Utj.UnityProfilerLiteKun
             animationTime = GetRecordersTime(mAnimationSamplerRecorders);
 
             
+
+            if (mAnimationUpdate != null)
+            {
+                mAnimatonCount = mAnimationUpdate.sampleBlockCount;
+            }
+            if (mAnimatorsUpdate != null)
+            {
+                mAnimatorsCount = mAnimatorsUpdate.sampleBlockCount;
+            }
+
+
+
             widthResolution = Screen.currentResolution.width;
             heightResolution = Screen.currentResolution.height;
             refreshRate = Screen.currentResolution.refreshRate;
@@ -481,7 +503,7 @@ namespace Utj.UnityProfilerLiteKun
                 return;
             }
 
-            float w = 350, h = 204;
+            float w = 350, h = 204+20;
 
             GUILayout.BeginArea(new Rect(Screen.safeArea.width - w - 30, 27, w, h), "Statistics", GUI.skin.window);
 
@@ -492,7 +514,7 @@ namespace Utj.UnityProfilerLiteKun
             var batchesSavedByInstancing = mInstancedBatchedDrawCallsCountRecorder.LastValue - mInstancedBatchesCountRecorder.LastValue;
 
             StringBuilder gfxStats = new StringBuilder(400);
-            gfxStats.Append(Format("Frame:{0,7}\n\n", Time.frameCount));
+            gfxStats.Append(Format("Frame:{0,7}\n", Time.frameCount));
             gfxStats.Append(Format("Graphics:\t {0,3:F1} FPS ({1,3:F1}ms)\n", 1.0f / mAvgTime, mAvgTime * 1000.0f));
 
             if (cpuFrameTime > gpuFrameTime)
@@ -505,6 +527,8 @@ namespace Utj.UnityProfilerLiteKun
             gfxStats.Append(Format("  Screen: {0} x {1} ({2} x {3}) - {4} [Hz]\n", widthScaleFactor * widthResolution, heightResolution * heightScaleFactor, widthResolution, heightResolution, refreshRate));
             gfxStats.Append(Format("  SetPass calls: {0} \tShadow casters: {1} \n", mSetPassCallsCountRecorder.LastValue, mShadowCastersCountRecorder.LastValue));
             gfxStats.Append(Format("  Visible skinned meshes: {0}\n", mVisibleSkinnedMeshesCountRecorder.LastValue));
+            gfxStats.Append(Format("  Animation components playing: {0}\n",mAnimatonCount));
+            gfxStats.Append(Format("  Animator components playing: {0}\n",mAnimatorsCount));
 
             //gfxStats.Append(Format("mDynamicBathcedDrawCallsCountRecorder {0}\n", mDynamicBathcedDrawCallsCountRecorder.LastValue));
             //gfxStats.Append(Format("mDynamicBatchesCountRecorder {0}\n", mDynamicBatchesCountRecorder.LastValue));
@@ -513,7 +537,7 @@ namespace Utj.UnityProfilerLiteKun
             //gfxStats.Append(Format("mInstancedBatchedDrawCallsCountRecorder {0}\n", mInstancedBatchedDrawCallsCountRecorder.LastValue));
             //gfxStats.Append(Format("mInstancedBatchesCountRecorder {0}\n", mInstancedBatchesCountRecorder.LastValue));
 
-            GUILayout.Label(gfxStats.ToString(), mLabelStyle);          
+            GUILayout.Label(gfxStats.ToString(), mTextStyle);          
             GUILayout.EndArea();
 #else
 

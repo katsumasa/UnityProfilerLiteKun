@@ -1,6 +1,6 @@
 # UnityProfilerLiteKun
 
-![Demo](https://github.com/katsumasa/UnityProfilerLiteKun/blob/master/Docs/images/UnityProfilerLiteKunDemo.gif)
+![Demo](Docs/images/UnityProfilerLiteKunDemo.gif)
 
 ## 概要
 
@@ -12,6 +12,7 @@
 - メモリが許す限り、プロファイリング情報を取得
 - 取得したプロファイリング情報をCSV形式で保存
 - Player側にStats風の簡易的なプロファイリング情報を表示可能
+  ![Stats](Docs/images/device-2021-02-19-133127.png)
 
 ## 実行確認済み環境
 
