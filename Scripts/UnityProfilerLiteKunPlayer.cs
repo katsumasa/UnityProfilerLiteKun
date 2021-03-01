@@ -14,9 +14,27 @@ namespace Utj.UnityProfilerLiteKun
 {
     public class UnityProfilerLiteKunPlayer : MonoBehaviour
     {
+        static UnityProfilerLiteKunPlayer mInstance;
+
+        public static UnityProfilerLiteKunPlayer instance
+        {
+            get
+            {
+                return mInstance;    
+            }
+
+            private set
+            {
+                mInstance = value;
+            }
+        }
+
+        
+
         FrameTiming[] mFrameTimings;
         uint mFrameTimingNum;
         ProfileData mProfileData;
+        
 
         long frameCount
         {
@@ -175,9 +193,6 @@ namespace Utj.UnityProfilerLiteKun
             }
         }
 
-
-
-
         string[] mPlayerLoopSamplerNames =
         {
             "PlayerLoop",
@@ -212,8 +227,6 @@ namespace Utj.UnityProfilerLiteKun
             "PreLateUpdate.DirectorUpdateAnimationBegin",
             "PreLateUpdate.DirectorUpdateAnimationEnd",
         };
-
-
 
         UnityEngine.Profiling.Recorder[] mPlayerLoopRecorders;
         UnityEngine.Profiling.Recorder[] mRenderingRecorders;
@@ -251,18 +264,57 @@ namespace Utj.UnityProfilerLiteKun
         GUIStyle mTextStyle;
 
 
-        bool mIsRecording;
+        Queue<MessageData.MessageID> mMessageIDs;
+        Queue<MessageData.MessageID> messageIDs
+        {
+            get
+            {
+                if(mMessageIDs == null)
+                {
+                    mMessageIDs = new Queue<MessageData.MessageID>();
+                }
+                return mMessageIDs;
+            }
+
+            set
+            {
+                mMessageIDs = value;
+            }
+        }
+
+
+        bool mIsRecording;        
         bool mIsEnableStats;
+
+
+        // Profileを開始する
+        public  void StartRecording()
+        {
+            //Debug.Log("StartRecording");
+            messageIDs.Enqueue(MessageData.MessageID.RECORDING_ON);
+        }
+
+        // Profileを終了する
+        public void EndRecording()
+        {
+            //Debug.Log("EndRecording");
+            messageIDs.Enqueue(MessageData.MessageID.RECORDING_OFF);
+        }
+
+
+        private void Awake()
+        {
+            instance = this;                        
+        }
 
 
         // Start is called before the first frame update
         void Start()
-        {
-
+        {            
             mFrameTimings = new FrameTiming[3];
             mFrameTimingNum = 0;
             mProfileData = new ProfileData();
-
+            
 
             frameCount = 0;
             mPrevRealTime = Time.realtimeSinceStartup;
@@ -316,9 +368,7 @@ namespace Utj.UnityProfilerLiteKun
 
             mSetPassCallsCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "SetPass Calls Count");
             mShadowCastersCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Shadow Casters Count");
-            mVisibleSkinnedMeshesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Visible Skinned Meshes Count");
-
-            
+            mVisibleSkinnedMeshesCountRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Visible Skinned Meshes Count");            
 #endif
         }
 
@@ -354,6 +404,15 @@ namespace Utj.UnityProfilerLiteKun
         }
 
 
+        private void OnDestroy()
+        {
+            
+            
+             instance = null;
+            
+        }
+
+        
         private void OnMessageEvent(MessageEventArgs args)
         {
             //Debug.Log("OnMessageEvent ");
@@ -382,7 +441,7 @@ namespace Utj.UnityProfilerLiteKun
                     break;
                 case MessageData.MessageID.RECORDING_OFF:
                     {
-                        mIsRecording = false;
+                        mIsRecording = true;
                     }
                     break;
             }
@@ -390,19 +449,36 @@ namespace Utj.UnityProfilerLiteKun
 
 
         void SendProfileData()
-        {
+        {                        
             var bf = new BinaryFormatter();
             var ms = new MemoryStream();
             try
-            {
+            {                
                 bf.Serialize(ms, mProfileData);
                 //var json = JsonUtility.ToJson(mProfileData);
                 //var bytes = System.Text.Encoding.ASCII.GetBytes(json);
                 var array = ms.ToArray();
-                PlayerConnection.instance.Send(UnityProfilerLiteKun.kMsgSendPlayerToEditor, array);
+                PlayerConnection.instance.Send(UnityProfilerLiteKun.kMsgSendProfileDataPlayerToEditor, array);
+            }            
+            finally
+            {
+                ms.Close();
             }
-            
+        }
 
+
+        void SendMessageData(MessageData.MessageID messageID)
+        {                        
+            var messageData = new MessageData();            
+            messageData.mMessageID = messageID;
+            var bf = new BinaryFormatter();
+            var ms = new MemoryStream();
+            try
+            {
+                bf.Serialize(ms, messageData);
+                var array = ms.ToArray();
+                PlayerConnection.instance.Send(UnityProfilerLiteKun.kMsgSendMessagePlayerToEditor, array);
+            }
             finally
             {
                 ms.Close();
@@ -488,6 +564,29 @@ namespace Utj.UnityProfilerLiteKun
             totalAllocatedMemorySize = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
             totalUnusedReservedMemorySize = UnityEngine.Profiling.Profiler.GetTotalUnusedReservedMemoryLong();
             gfxDriverAllocatedMemory = UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver();
+
+
+            if(messageIDs.Count > 0)
+            {
+                var messageID = messageIDs.Dequeue();
+                switch (messageID)
+                {
+                    case MessageData.MessageID.RECORDING_ON:
+                        {
+                            mIsRecording = true;
+                            SendMessageData(MessageData.MessageID.RECORDING_ON);
+                        }
+                        break;
+
+                    case MessageData.MessageID.RECORDING_OFF:
+                        {
+                            mIsRecording = false;
+                            SendMessageData(MessageData.MessageID.RECORDING_OFF);
+                        }
+                        break;
+                }
+            }
+
 
             if (mIsRecording)
             {
