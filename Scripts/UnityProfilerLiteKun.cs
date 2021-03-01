@@ -8,10 +8,12 @@ namespace Utj.UnityProfilerLiteKun
     public class UnityProfilerLiteKun
     {
         public static readonly System.Guid kMsgSendEditorToPlayer = new System.Guid("77827383de564256850e77b403bcf3f8");
-        public static readonly System.Guid kMsgSendPlayerToEditor = new System.Guid("dcc882dc20f344759ece75ca6f67fc25");
+        public static readonly System.Guid kMsgSendProfileDataPlayerToEditor = new System.Guid("dcc882dc20f344759ece75ca6f67fc25");
+        public static readonly System.Guid kMsgSendMessagePlayerToEditor = new System.Guid("2c0754b17b324067aa7d8e8e27c74db5");
+        
     }
 
-    
+    [Serializable]
     public class MessageData
     {
         public enum MessageID
@@ -21,9 +23,7 @@ namespace Utj.UnityProfilerLiteKun
             RECORDING_ON,
             RECORDING_OFF,
         }
-
-
-        public MessageID mMessageID;
+        [SerializeField] public MessageID mMessageID;       
     }
 
 

@@ -27,6 +27,23 @@
 
 - Pixel4XL
 
+## 使い方
+
+1. Scenes/UnityProfilerLiteKunをSceneに配置する。
+2. アプリをビルドする（Development　Build:ON(必須)、Autoconnect Profiler:ON(推奨)
+3. Window->UnityProfilerLiteKunから専用Windowを開く
+4. アプリを実行する
+5. 任意のタイミングでRecordボタンを押す
+
+以上
+
+## API
+
+特定のタイミング・期間で計測を行う必要がある場合、スクリプトから下記のAPIを実行してください。
+
+- UnityProfilerLiteKun.instance.StartRecording()
+- UnityProfilerLiteKun.instance.EndRecording()
+
 ## その他
 
 パフォーマンスのチューニングを行う際、いきなりUnityProfilerをでProfilingを行うのではなく、先ずは(メモリの許す限り)Frame数に制限無くProfilingを行うことが出来る為、常にProfileを記録しつつ、パフォーマンス悪い画面を見つけたら、UnityProfilerでProfilingを行うと効率的です。

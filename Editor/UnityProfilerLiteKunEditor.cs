@@ -343,7 +343,7 @@ namespace Utj.UnityProfilerLiteKun
                     allocateList.Add(profileDataList[i + ofst].mTotalAllocatedMemorySize);
                     reservedList.Add(profileDataList[i + ofst].mTotalReservedMemorySize);                 
                 }
-                var content = new GUIContent("Total:" + FormatBytes(profileData.mTotalAllocatedMemorySize) + "/" + FormatBytes(profileData.mTotalReservedMemorySize));
+                var content = new GUIContent("Unity:" + FormatBytes(profileData.mTotalAllocatedMemorySize) + "/" + FormatBytes(profileData.mTotalReservedMemorySize));
                 EditorGUILayoutUTJ.GrapFieldMemory(content, reservedList, new Color32(217,170,170,255), allocateList, new Color32(192,80,72,255));
             }
             EditorGUILayout.Space();
@@ -359,7 +359,7 @@ namespace Utj.UnityProfilerLiteKun
                     allocateList.Add(profileDataList[i + ofst].mMonoUsedSize);
                     reservedList.Add(profileDataList[i + ofst].mMonoHeapSize);
                 }
-                var content = new GUIContent("Mono:" + FormatBytes(profileData.mTotalAllocatedMemorySize) + "/" + FormatBytes(profileData.mTotalReservedMemorySize));
+                var content = new GUIContent("Mono:" + FormatBytes(profileData.mMonoUsedSize) + "/" + FormatBytes(profileData.mMonoHeapSize));
                 EditorGUILayoutUTJ.GrapFieldMemory(content, reservedList, new Color32(170,186,215,255), allocateList, new Color32(79,129,189,255));
             }
             EditorGUILayout.Space();
@@ -396,8 +396,8 @@ namespace Utj.UnityProfilerLiteKun
 #endif
             }
             UnityEditor.Networking.PlayerConnection.EditorConnection.instance.Initialize();
-            UnityEditor.Networking.PlayerConnection.EditorConnection.instance.Register(UnityProfilerLiteKun.kMsgSendPlayerToEditor, OnMessageEvent);
-
+            UnityEditor.Networking.PlayerConnection.EditorConnection.instance.Register(UnityProfilerLiteKun.kMsgSendProfileDataPlayerToEditor, OnProfileDataEvent);
+            UnityEditor.Networking.PlayerConnection.EditorConnection.instance.Register(UnityProfilerLiteKun.kMsgSendMessagePlayerToEditor, OnMessageEvent);
             if (frameCountMax <= 0)
             {
                 frameCountMax = 999999;
@@ -417,12 +417,31 @@ namespace Utj.UnityProfilerLiteKun
 
         private void OnDestroy()
         {
-            EditorConnection.instance.Unregister(UnityProfilerLiteKun.kMsgSendPlayerToEditor, OnMessageEvent);
+            EditorConnection.instance.Unregister(UnityProfilerLiteKun.kMsgSendProfileDataPlayerToEditor, OnProfileDataEvent);
+            EditorConnection.instance.Unregister(UnityProfilerLiteKun.kMsgSendMessagePlayerToEditor, OnMessageEvent);
             EditorConnection.instance.DisconnectAll();
         }
 
 
         private void OnMessageEvent(UnityEngine.Networking.PlayerConnection.MessageEventArgs args)
+        {
+            var bf = new BinaryFormatter();
+            var ms = new MemoryStream(args.data);
+            var messageData = (MessageData)bf.Deserialize(ms);
+            switch (messageData.mMessageID)
+            {
+                case MessageData.MessageID.RECORDING_ON:
+                    mIsRecording = true;
+                    break;
+
+                case MessageData.MessageID.RECORDING_OFF:
+                    mIsRecording = false;
+                    break;
+
+            }
+        }
+
+        private void OnProfileDataEvent(UnityEngine.Networking.PlayerConnection.MessageEventArgs args)
         {
             //Debug.Log("OnMessageEvent");
             //var json = System.Text.Encoding.ASCII.GetString(args.data);
@@ -436,18 +455,17 @@ namespace Utj.UnityProfilerLiteKun
                 profileDataList.Add(mProfileData);
                 mSlider = profileDataList.Count;
                 Repaint();
-            } else            
+            } 
+            else
             {
                 SendMessage(MessageData.MessageID.RECORDING_OFF);
-            }
-                
-            
+            }            
         }
 
 
         private void SendMessage(MessageData.MessageID messageID)
         {
-            Debug.Log("SendMessage");
+            //Debug.Log("SendMessage");
             var messageData = new MessageData();
             messageData.mMessageID = messageID;
 
