@@ -32,9 +32,10 @@ namespace Utj.UnityProfilerLiteKun
         private static class Styles
         {
             public static readonly GUIContent TitleContent = new GUIContent("Profiler Lite", (Texture2D)EditorGUIUtility.Load("d_UnityEditor.ProfilerWindow@2x"));
-            public static readonly GUIContent RecOnContent= new GUIContent((Texture2D)EditorGUIUtility.Load("d_Record On@2x"));
-            public static readonly GUIContent RecOffContent = new GUIContent((Texture2D)EditorGUIUtility.Load("d_Record Off@2x"));            
-            public static readonly GUIContent SaveContent = new GUIContent((Texture2D)EditorGUIUtility.Load("d_SaveAs@2x"));
+            public static readonly GUIContent RecOnContent= new GUIContent((Texture2D)EditorGUIUtility.Load("d_Record On@2x"),"Start Recording");
+            public static readonly GUIContent RecOffContent = new GUIContent((Texture2D)EditorGUIUtility.Load("d_Record Off@2x"),"Stop Recording");            
+            public static readonly GUIContent SaveContent = new GUIContent((Texture2D)EditorGUIUtility.Load("d_SaveAs@2x"),"Save Profile Data as CSV");
+            public static readonly GUIContent OpenContent = new GUIContent((Texture2D)EditorGUIUtility.Load("d_Profiler.Open@2x"),"Load Profile Data");
             public static readonly GUIContent StatsContent = new GUIContent("enabled Stats",(Texture2D)EditorGUIUtility.Load("d_SaveAs@2x"));
             public static readonly GUIContent statsContent = EditorGUIUtility.TrTextContent("Stats");
             public static readonly GUIContent clearData = EditorGUIUtility.TrTextContent("Clear", "Clear the captured data");
@@ -155,6 +156,41 @@ namespace Utj.UnityProfilerLiteKun
             }
 
             //
+            // Load CSV
+            //
+            contentSize = EditorStyles.label.CalcSize(Styles.OpenContent);
+            if (GUILayout.Button(Styles.OpenContent, EditorStyles.toolbarButton, GUILayout.MaxWidth(contentSize.x + 10)))
+            {
+                var path = EditorUtility.OpenFilePanel("Open Profile Data","","csv");
+                if (!string.IsNullOrEmpty(path))
+                {
+                    using (StreamReader sr = new StreamReader(path))
+                    {
+                        if (mProfileDataList == null)
+                        {
+                            mProfileDataList = new List<ProfileData>();
+                        }
+                        else
+                        {
+                            mProfileDataList.Clear();
+                        }
+                        // headerを読み捨てる
+                        sr.ReadLine();
+                        // Bodyの読み込む
+                        while(!sr.EndOfStream)
+                        {
+                            var line = sr.ReadLine();
+                            var item = new ProfileData();
+                            item.SetCsvBody(line);
+                            mProfileDataList.Add(item);
+
+                        }
+                        sr.Close();
+                        
+                    }
+                }
+            }
+            //
             // Save File
             //
             contentSize = EditorStyles.label.CalcSize(Styles.SaveContent);
@@ -214,24 +250,36 @@ namespace Utj.UnityProfilerLiteKun
 
         private void OnGUI()
         {
-            GUILayoutConnect();            
-            EditorGUILayout.LabelField( Format("Frame Count:{0,7}", profileData.mFrameCount));            
-            mScrollPos = EditorGUILayout.BeginScrollView(mScrollPos);
             var protList = new List<float>();
             var ofst = 0;
             var count = 0;
             int w = (int)EditorGUIUtility.currentViewWidth;
-
+#if true
             if (mSlider > w)
             {
                 ofst = mSlider - w;
                 count = w;
-            } else
+            }
+            else
+#endif
             {
                 ofst = 0;
                 count = mSlider;
             }
+            var current = count + ofst;
 
+
+            GUILayoutConnect();
+            {
+                long frameCount = 0;
+                if(profileDataList.Count > current)
+                {
+                    frameCount = profileDataList[current].mFrameCount;
+                }
+                EditorGUILayout.LabelField(Format("Frame Count:{0,7}", frameCount));
+            }
+
+            mScrollPos = EditorGUILayout.BeginScrollView(mScrollPos);            
             // FrameRate
             {
                 protList.Clear();
@@ -239,7 +287,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add(profileDataList[i + ofst].mDeltaTime * 1000.0f);
                 }
-                var content = new GUIContent(Format("Frame Rate {1,3:F1}ms ({0,3:F1} FPS)", 1.0f / profileData.mDeltaTime, profileData.mDeltaTime * 1000.0f));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 1.0f;                
+                var content = new GUIContent(Format("Frame Rate {1,3:F1}ms ({0,3:F1} FPS)", 1.0f / v * 1000.0f, v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, Color.yellow);
             }            
             EditorGUILayout.Space();
@@ -252,7 +301,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add((float)profileDataList[i + ofst].mCpuFrameTime);
                 }
-                var content = new GUIContent(Format("CPU Time {0,3:F1}ms", (float)profileData.mCpuFrameTime));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 0;                
+                var content = new GUIContent(Format("CPU Time {0,3:F1}ms", v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, new Color32(124,97,158,255));
             }
             EditorGUILayout.Space();            
@@ -265,7 +315,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add((float)profileDataList[i + ofst].mGpuFrameTime);
                 }
-                var content = new GUIContent(Format("GPU Time {0,3:F1}ms", (float)profileData.mGpuFrameTime));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 0;
+                var content = new GUIContent(Format("GPU Time {0,3:F1}ms", (float)v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, new Color32(75,172,198,255));
             }
             EditorGUILayout.Space();
@@ -282,7 +333,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add((float)profileDataList[i + ofst].mRenderingTime / 1000000.0f);                                        
                 }
-                var content = new GUIContent(Format("Rendering {0,3:F1}ms", (float)profileData.mRenderingTime / 1000000.0f));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 0;
+                var content = new GUIContent(Format("Rendering {0,3:F1}ms", v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, new Color32(127,154,72,255));
             }            
             EditorGUILayout.Space();
@@ -295,7 +347,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add((float)profileDataList[i + ofst].mScriptTime/ 1000000.0f);
                 }
-                var content = new GUIContent(Format("Script {0,3:F1}ms", (float)profileData.mScriptTime/ 1000000.0f));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 0;
+                var content = new GUIContent(Format("Script {0,3:F1}ms", v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, new Color32(51,153,255,255));
             }
             EditorGUILayout.Space();            
@@ -308,7 +361,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add((float)profileDataList[i + ofst].mPhysicsTime/ 1000000.0f);
                 }
-                var content = new GUIContent(Format("Physics{0,3:F1}ms", (float)profileData.mPhysicsTime/ 1000000.0f));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 0;
+                var content = new GUIContent(Format("Physics{0,3:F1}ms",v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, Color.magenta);
             }
             EditorGUILayout.Space();
@@ -321,7 +375,8 @@ namespace Utj.UnityProfilerLiteKun
                 {
                     protList.Add((float)profileDataList[i + ofst].mAnimationTime/ 1000000.0f);
                 }
-                var content = new GUIContent(Format("Animation{0,3:F1}ms", (float)profileData.mAnimationTime/ 1000000.0f));
+                float v = protList.Count > 0 ? protList[protList.Count - 1] : 0;
+                var content = new GUIContent(Format("Animation{0,3:F1}ms", v));
                 EditorGUILayoutUTJ.GraphFieldFloat(content, protList, Color.cyan);
             }
 
@@ -343,7 +398,9 @@ namespace Utj.UnityProfilerLiteKun
                     allocateList.Add(profileDataList[i + ofst].mTotalAllocatedMemorySize);
                     reservedList.Add(profileDataList[i + ofst].mTotalReservedMemorySize);                 
                 }
-                var content = new GUIContent("Unity:" + FormatBytes(profileData.mTotalAllocatedMemorySize) + "/" + FormatBytes(profileData.mTotalReservedMemorySize));
+                var allocateSize = allocateList.Count > 0 ? allocateList[allocateList.Count - 1] : 0;
+                var reservedSize = reservedList.Count > 0 ? reservedList[reservedList.Count - 1] : 0;
+                var content = new GUIContent("Unity:" + FormatBytes(allocateSize) + "/" + FormatBytes(reservedSize));
                 EditorGUILayoutUTJ.GrapFieldMemory(content, reservedList, new Color32(217,170,170,255), allocateList, new Color32(192,80,72,255));
             }
             EditorGUILayout.Space();
@@ -359,7 +416,9 @@ namespace Utj.UnityProfilerLiteKun
                     allocateList.Add(profileDataList[i + ofst].mMonoUsedSize);
                     reservedList.Add(profileDataList[i + ofst].mMonoHeapSize);
                 }
-                var content = new GUIContent("Mono:" + FormatBytes(profileData.mMonoUsedSize) + "/" + FormatBytes(profileData.mMonoHeapSize));
+                var allocateSize = allocateList.Count > 0 ? allocateList[allocateList.Count - 1] : 0;
+                var reservedSize = reservedList.Count > 0 ? reservedList[reservedList.Count - 1] : 0;
+                var content = new GUIContent("Mono:" + FormatBytes(allocateSize) + "/" + FormatBytes(reservedSize));
                 EditorGUILayoutUTJ.GrapFieldMemory(content, reservedList, new Color32(170,186,215,255), allocateList, new Color32(79,129,189,255));
             }
             EditorGUILayout.Space();
@@ -374,7 +433,8 @@ namespace Utj.UnityProfilerLiteKun
                 {                    
                     allocateList.Add(profileDataList[i + ofst].mGfxDriverAllocatedMemory);
                 }
-                var content = new GUIContent("GfxDriver:" + FormatBytes(profileData.mGfxDriverAllocatedMemory));
+                var allocateSize = allocateList.Count > 0 ? allocateList[allocateList.Count - 1] : 0;
+                var content = new GUIContent("GfxDriver:" + FormatBytes(allocateSize));
                 EditorGUILayoutUTJ.GrapFieldMemory(content, reservedList, new Color32(155, 187, 89, 255), allocateList, new Color32(155, 187, 89, 255));
             }
             EditorGUILayout.Space();
@@ -382,7 +442,7 @@ namespace Utj.UnityProfilerLiteKun
 
             EditorGUILayout.EndScrollView();
 
-            mSlider = EditorGUILayout.IntSlider(mSlider,0, mProfileDataList.Count);
+            mSlider = EditorGUILayout.IntSlider(mSlider,0, mProfileDataList.Count - 1);
         }
 
         private void OnEnable()
