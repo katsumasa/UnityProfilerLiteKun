@@ -1,4 +1,4 @@
-# UnityProfilerLiteKun
+# UnityProfilerLiteKun [(EnglishVer)](README＿EN.md)
 
 ![Demo](Docs/images/UnityProfilerLiteKunDemo.gif)
 
