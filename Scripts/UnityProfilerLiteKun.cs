@@ -84,6 +84,32 @@ namespace Utj.UnityProfilerLiteKun
             return "frameCount,deltaTime,Time.deltaTime,playerLoopTime,renderingTime,scriptTime,physicsTime,animationTime,cpuFrameTime,gpuFrameTime,widthScaleFactor,heightScaleFactor,widthResolutio,heightResolution,usedHeapSize,monoHeapSize,monoUsedSize,tempAllocatorSize,totalAllocatedMemorySize,totalReservedMemorySize,totalUnusedReservedMemorySize,gfxDriverAllocatedMemory";
         }
 
+        public void SetCsvBody(string body)
+        {
+            string[] arr = body.Split(',');
+            mFrameCount                     = System.Convert.ToInt64(arr[0]);
+            mDeltaTime                      = System.Convert.ToSingle(arr[1]);
+            mPlayerLoopTime                 = System.Convert.ToInt64(arr[2]);
+            mRenderingTime                  = System.Convert.ToInt64(arr[3]);
+            mScriptTime                     = System.Convert.ToInt64(arr[4]);
+            mPhysicsTime                    = System.Convert.ToInt64(arr[5]);
+            mAnimationTime                  = System.Convert.ToInt64(arr[6]);
+            mCpuFrameTime                   = System.Convert.ToDouble(arr[7]);
+            mGpuFrameTime                   = System.Convert.ToDouble(arr[8]);
+            mWidthScaleFactor               = System.Convert.ToSingle(arr[9]);
+            mHeightScaleFactor              = System.Convert.ToSingle(arr[10]);
+            mWidthResolution                = System.Convert.ToInt32(arr[11]);
+            mHeightResolution               = System.Convert.ToInt32(arr[12]);
+            mUsedHeapSize                   = System.Convert.ToInt64(arr[13]);
+            mMonoHeapSize                   = System.Convert.ToInt64(arr[14]);
+            mMonoUsedSize                   = System.Convert.ToInt64(arr[15]);
+            mTempAllocatorSize              = System.Convert.ToInt64(arr[16]);
+            mTotalAllocatedMemorySize       = System.Convert.ToInt64(arr[17]);
+            mTotalReservedMemorySize        = System.Convert.ToInt64(arr[18]);
+            mTotalUnusedReservedMemorySize  = System.Convert.ToInt64(arr[19]);
+            mGfxDriverAllocatedMemory       = System.Convert.ToInt64(arr[20]);
+        }
+
 
         public string GetCSVBody()
         {
