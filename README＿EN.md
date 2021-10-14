@@ -1,6 +1,6 @@
 # UnityProfilerLiteKun
 
-![Demo](Docs/images/UnityProfilerLiteKunDemo.gif)
+<img width="800" alt="a532971f88c85a4653daae4dab0280b0" src="https://user-images.githubusercontent.com/29646672/137266796-2e436fbd-14f7-48ce-82af-32369759327b.gif">
 
 ## Summary
 
@@ -12,7 +12,7 @@ Simplified Unity Profiler。
 - Obtain profiling information as memory allows.
 - Save the obtained profiling information in CSV format.
 - Static-like window with simplified profiling information could be displayed on the Player side.
-  ![Stats](Docs/images/device-2021-02-19-133127.png)
+  <img width="800" alt="Stats" src="https://user-images.githubusercontent.com/29646672/137267690-ed73cf86-15fd-46da-b66f-65cc6221e071.png">
 
 ## Operating Environment 
 
