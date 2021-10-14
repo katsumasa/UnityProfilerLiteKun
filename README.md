@@ -1,5 +1,7 @@
 # UnityProfilerLiteKun [(EnglishVer)](Documentation~/UnityProfilerLiteKun.md)
 
+![GitHub package.json version](https://img.shields.io/github/package-json/v/katsumasa/UnityProfilerLiteKun)
+
 <img width="800" alt="a532971f88c85a4653daae4dab0280b0" src="https://user-images.githubusercontent.com/29646672/137266796-2e436fbd-14f7-48ce-82af-32369759327b.gif">
 
 ## 概要
