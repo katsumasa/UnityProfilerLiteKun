@@ -245,6 +245,20 @@ namespace Utj.UnityProfilerLiteKun
             EditorGUILayout.Space();
             EditorGUILayout.Space();
 
+
+            // Time.deltaTime
+            {
+                protList.Clear();
+                for (var i = 0; i < count; i++)
+                {
+                    protList.Add(profileDataList[i + ofst].mDeltaTime2 * 1000.0f);
+                }
+                var content = new GUIContent(Format("Time.deltaTime {1,3:F1}ms ({0,3:F1} FPS)", 1.0f / profileData.mDeltaTime2, profileData.mDeltaTime2 * 1000.0f));
+                EditorGUILayoutUTJ.GraphFieldFloat(content, protList, Color.yellow);
+            }
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
             // CPU Time
             {
                 protList.Clear();

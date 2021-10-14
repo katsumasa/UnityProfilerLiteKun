@@ -32,6 +32,7 @@ namespace Utj.UnityProfilerLiteKun
     {
         [SerializeField] public long mFrameCount;
         [SerializeField] public float mDeltaTime;
+        [SerializeField] public float mDeltaTime2;
         [SerializeField] public long mPlayerLoopTime;
         [SerializeField] public long mRenderingTime;
         [SerializeField] public long mScriptTime;
@@ -61,6 +62,10 @@ namespace Utj.UnityProfilerLiteKun
             return mDeltaTime;
         }
 
+        public float GetDeltaTime2()
+        {
+            return mDeltaTime2;
+        }
 
         public float GetPlayerLoopTime()
         {
@@ -76,15 +81,16 @@ namespace Utj.UnityProfilerLiteKun
 
         public static string GetCSVHeader()
         {
-            return "frameCount,deltaTime,playerLoopTime,renderingTime,scriptTime,physicsTime,animationTime,cpuFrameTime,gpuFrameTime,widthScaleFactor,heightScaleFactor,widthResolutio,heightResolution,usedHeapSize,monoHeapSize,monoUsedSize,tempAllocatorSize,totalAllocatedMemorySize,totalReservedMemorySize,totalUnusedReservedMemorySize,gfxDriverAllocatedMemory";
+            return "frameCount,deltaTime,Time.deltaTime,playerLoopTime,renderingTime,scriptTime,physicsTime,animationTime,cpuFrameTime,gpuFrameTime,widthScaleFactor,heightScaleFactor,widthResolutio,heightResolution,usedHeapSize,monoHeapSize,monoUsedSize,tempAllocatorSize,totalAllocatedMemorySize,totalReservedMemorySize,totalUnusedReservedMemorySize,gfxDriverAllocatedMemory";
         }
 
 
         public string GetCSVBody()
         {
-            return string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20}",
+            return string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12},{13},{14},{15},{16},{17},{18},{19},{20},{21}",
                 mFrameCount,
                 mDeltaTime,
+                mDeltaTime2,
                 mPlayerLoopTime,        
                 mRenderingTime,                
                 mScriptTime,

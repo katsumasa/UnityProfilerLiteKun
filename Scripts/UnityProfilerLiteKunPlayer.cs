@@ -48,6 +48,12 @@ namespace Utj.UnityProfilerLiteKun
             set { mProfileData.mDeltaTime = value; }
         }
 
+        float deltaTime2
+        {
+            get { return mProfileData.mDeltaTime2; }
+            set { mProfileData.mDeltaTime2 = value; }
+        }
+
         long renderingTime
         {
             get { return mProfileData.mRenderingTime; }
@@ -532,6 +538,9 @@ namespace Utj.UnityProfilerLiteKun
             mAvgTime += deltaTime * K;
             mPrevRealTime = currentTime;
 
+
+            deltaTime2 = Time.deltaTime;
+
             playerLoopTime = GetRecordersTime(mPlayerLoopRecorders);
 
             renderingTime = GetRecordersTime(mRenderingRecorders);
@@ -656,6 +665,8 @@ namespace Utj.UnityProfilerLiteKun
 
             GUI.Label(new Rect( 16,170,180, 20), Format("Physics:   {0,3:F2}ms\n", physicsTime / 1000000.0f), mTextStyle);
             GUI.Label(new Rect(200,170,180, 20), Format("Animation: {0,3:F2}ms\n", animationTime / 1000000.0f), mTextStyle);
+
+            GUI.Label(new Rect(8,190,180,20),Format("Time.deltaTime{0}\n",Time.deltaTime));
 
             GUI.Label(new Rect(  8,220,390, 20), "Memory:", mLabelStyle);            
             StringBuilder sb = new StringBuilder();
