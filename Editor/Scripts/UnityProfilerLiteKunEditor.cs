@@ -17,6 +17,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Linq;
 
 #if UNITY_2020_1_OR_NEWER
+using UnityEngine.Networking.PlayerConnection;
 using ConnectionUtility = UnityEditor.Networking.PlayerConnection.PlayerConnectionGUIUtility;
 using ConnectionGUILayout = UnityEditor.Networking.PlayerConnection.PlayerConnectionGUILayout;
 #elif UNITY_2018_1_OR_NEWER
