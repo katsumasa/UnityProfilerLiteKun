@@ -100,7 +100,7 @@ namespace Utj.UnityProfilerLiteKun
 
 
 
-        [MenuItem("Window/UnityProfilerLiteKun")]
+        [MenuItem("Window/UTJ/UnityProfilerLiteKun")]
         public static void OpenWindow()
         {            
             editorWindow.Show();
