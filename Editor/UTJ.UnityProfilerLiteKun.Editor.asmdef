@@ -1,0 +1,17 @@
+{
+    "name": "UTJ.UnityProfilerLiteKun.Editor",
+    "references": [
+        "GUID:0eb4ba82cfe31bd418c8f53b61e612f6"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
