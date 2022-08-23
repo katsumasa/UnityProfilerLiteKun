@@ -14,7 +14,7 @@
 - メモリが許す限り、プロファイリング情報を取得
 - 取得したプロファイリング情報をCSV形式で保存
 - Player側にStats風の簡易的なプロファイリング情報を表示可能
-- 
+
 <img width="800" alt="Stats" src="https://user-images.githubusercontent.com/29646672/137267690-ed73cf86-15fd-46da-b66f-65cc6221e071.png">
 
 ## 実行確認済み環境
@@ -32,9 +32,9 @@
 
 ## 使い方
 
-1. Scenes/UnityProfilerLiteKunをSceneに配置する。
+1. [UnityProfilerLiteKun.prefab](https://github.com/katsumasa/UnityProfilerLiteKun/blob/master/Runtime/Prefabs/UnityProfilerLiteKun.prefab)をSceneに配置する。
 2. アプリをビルドする（Development　Build:ON(必須)、Autoconnect Profiler:ON(推奨)
-3. Window->UnityProfilerLiteKunから専用Windowを開く
+3. Window > UTJ > UnityProfilerLiteKunから専用Windowを開く
 4. アプリを実行する
 5. 任意のタイミングでRecordボタンを押す
 
