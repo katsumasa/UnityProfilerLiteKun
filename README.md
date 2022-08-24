@@ -48,6 +48,9 @@ git clone https://github.com/katsumasa/UnityProfilerLiteKun.git
 1. WebブラウザーでUnityProfilerLiteKunのWebページを開く
 2. 画面右上の緑色のCodeと記載されているプルダウンメニューからDownload ZIPを選択する
 
+![image](https://user-images.githubusercontent.com/29646672/186292725-d81222f9-6a5d-4474-8446-78caa926364d.png)
+
+
 ### PackageManagerから取得する
 
 1. UnityEditorからWindow > Package ManagerでPackage Managerを開く
