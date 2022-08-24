@@ -21,7 +21,7 @@
 
 ### 確認済みのUnityバージョン
 
-- Unity2019.4.5f1
+- Unity2019.4.40f1
 - Unity2020.2.2f1
 
 ### 確認済みの端末
@@ -29,6 +29,30 @@
 #### Android
 
 - Pixel4XL
+- Pixel6Pro
+
+## セットアップ
+
+UnityProfilerLiteKunはGitHubで管理されており、下記の３種類のセットアップ方法がありますが、UnityEditorのPackageManagerから取得するのがお勧めです。
+
+### コンソールから取得する場合
+
+コンソールを開き、以下のコマンドを実行します
+
+```:
+git clone https://github.com/katsumasa/UnityProfilerLiteKun.git
+```
+
+### GitHubから直接取得する
+
+1. WebブラウザーでUnityProfilerLiteKunのWebページを開く
+2. 画面右上の緑色のCodeと記載されているプルダウンメニューからDownload ZIPを選択する
+
+### PackageManagerから取得する
+
+1. UnityEditorからWindow > Package ManagerでPackage Managerを開く
+2. Package Manager左上の+のプルダウンメニューからAdd package form git URL...を選択する
+3. ダイアログへ`https://github.com/katsumasa/UnityProfilerLiteKun.git`を設定し、Addボタンを押す
 
 ## 使い方
 
@@ -50,7 +74,7 @@
 ## その他
 
 パフォーマンスのチューニングを行う際、いきなりUnityProfilerをでProfilingを行うのではなく、先ずは(メモリの許す限り)Frame数に制限無くProfilingを行うことが出来る為、常にProfileを記録しつつ、パフォーマンス悪い画面を見つけたら、UnityProfilerでProfilingを行うと効率的です。
-本Editor拡張は、[UnityChoseKun](https://github.com/katsumasa/UnityChoseKun)と併用して使うことを想定しています。
-Statsを有効にすると、Frame数が画面に表示されるので、UnityChoseKunで画面を録画しておくと、どの画面でパフォーマンスが悪くなるかを発見しやすくなります。
+UnityProfilerLiteKunは、[UnityChoseKun](https://github.com/katsumasa/UnityChoseKun)や[UnityPlayerView](https://github.com/katsumasa/UnityPlayerView)と併用して使うことを想定しています。
+Statsを有効にすると、Frame数が画面に表示されるので、[UnityPlayerView](https://github.com/katsumasa/UnityPlayerView)で画面を録画しておくと、どの画面でパフォーマンスが悪くなるかを発見しやすくなります。
 
-要望、問題等はIssuesからご連絡下さい。
+要望、問題等は[Issues](https://github.com/katsumasa/UnityProfilerLiteKun/issues)からご連絡下さい。
