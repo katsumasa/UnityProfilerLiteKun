@@ -98,7 +98,7 @@ namespace Utj.UnityProfilerLiteKun
             }
         }
 
-
+           
 
         [MenuItem("Window/UTJ/UnityProfilerLiteKun")]
         public static void OpenWindow()
@@ -251,10 +251,17 @@ namespace Utj.UnityProfilerLiteKun
 
         private void OnGUI()
         {
+            GUILayoutConnect();
+
             var protList = new List<float>();
             var ofst = 0;
             var count = 0;
             int w = (int)EditorGUIUtility.currentViewWidth;
+
+            if (mSlider > profileDataList.Count)
+            {
+                mSlider = profileDataList.Count;
+            }
 #if true
             if (mSlider > w)
             {
@@ -270,7 +277,7 @@ namespace Utj.UnityProfilerLiteKun
             var current = count + ofst;
 
 
-            GUILayoutConnect();
+            
             {
                 long frameCount = 0;
                 if(profileDataList.Count > current)
@@ -286,7 +293,15 @@ namespace Utj.UnityProfilerLiteKun
                 protList.Clear();
                 for (var i = 0; i < count; i++)
                 {
-                    protList.Add(profileDataList[i + ofst].mDeltaTime * 1000.0f);
+                    try
+                    {
+
+                        protList.Add(profileDataList[i + ofst].mDeltaTime * 1000.0f);
+                    }
+                    catch(System.Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
                 }
                 float v = protList.Count > 0 ? protList[protList.Count - 1] : 1.0f;                
                 var content = new GUIContent(Format("Frame Rate {1,3:F1}ms ({0,3:F1} FPS)", 1.0f / v * 1000.0f, v));
